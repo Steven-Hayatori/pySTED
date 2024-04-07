@@ -14,6 +14,7 @@ excitation beam, a STED beam, a detector and the parameters of the fluorophores 
 code for the objects that make up the microscope and the sample are contained in pysted.base
 Each object has parameters which can be tuned, which will affect the resulting acquisition
 """
+SEED = 42
 
 print("Setting up the microscope...")
 # Fluorophore properties
@@ -98,10 +99,10 @@ psf_sted = microscope.get_effective(pixelsize, action_spaces["p_ex"]["high"], ac
 # You could use any integer-valued array as a Datamap
 
 # 背景突触
-shroom1 = dg.Synapse(10, mode="custom", seed=42)
+shroom1 = dg.Synapse(2, mode="custom", seed=42)
 
 n_molecs_in_domain1, min_dist1 = 100, 50
-shroom1.add_nanodomains(100, min_dist_nm=min_dist1, n_molecs_in_domain=n_molecs_in_domain1, valid_thickness=5, seed=42)
+shroom1.add_nanodomains(50, min_dist_nm=min_dist1, n_molecs_in_domain=n_molecs_in_domain1, valid_thickness=5, seed=SEED)
 
 # create the Datamap and set its region of interest
 dmap = base.Datamap(shroom1.frame, pixelsize)
@@ -167,6 +168,8 @@ vmax = sted_acq.max()
 axes[2].imshow(sted_acq, vmax=vmax)
 axes[2].set_title(f"STED")
 plt.show()
+plt.savefig(f'./output/{SEED}.png')
+print('done')
 # fig, axes = plt.subplots(2, 2)
 
 # vmax = conf_acq.max()
@@ -176,7 +179,7 @@ plt.show()
 # axes[0,1].imshow(conf_acq2, vmax=vmax)
 # axes[0,1].set_title(f"Confocal 2")
 
-# vmax = sted_acq.max()
+# vmax = sted_acq.max()W
 # axes[1,0].imshow(sted_acq, vmax=vmax)
 # axes[1,0].set_title(f"STED 1")
 
