@@ -2,6 +2,7 @@ import numpy as np
 import warnings
 from matplotlib import pyplot as plt
 from skimage import draw
+from skimage.draw import disk
 from skimage import transform as sktr
 from scipy.ndimage.morphology import binary_fill_holes
 from scipy.spatial.distance import cdist
@@ -88,7 +89,7 @@ class Synapse():
     :param seed: Sets the seed for the randomness
     """
     def __init__(self, n_molecs, datamap_pixelsize_nm=20, width_nm=(400, 800), height_nm=(300, 600),
-                 img_shape=(64, 64), dendrite_thickness=(1, 10), mode='rand', seed=None):
+                 img_shape=(256, 256), dendrite_thickness=(1, 10), mode='rand', seed=None):
         np.random.seed(seed)
         self.img_shape = img_shape
         self.datamap_pixelsize_nm = datamap_pixelsize_nm
@@ -97,11 +98,11 @@ class Synapse():
         self.nanodomains = []
         self.nanodomains_coords = []
 
-        modes = {0: 'mushroom', 1: 'bump', 2: 'rand'}
+        modes = {0: 'mushroom', 1: 'bump', 2: 'rand', 3:'custom'}
         if mode not in modes.values():
             raise ValueError(f"mode {mode} is not valid, valid modes are {modes.values}")
         if mode == 'rand':
-            mode_key = np.random.randint(0, 2)
+            mode_key = np.random.randint(0, 3)
             mode = modes[mode_key]
 
         width_nm = np.random.randint(width_nm[0], width_nm[1])
@@ -165,7 +166,14 @@ class Synapse():
             # img[ellipse_pixels[:, 0], ellipse_pixels[:, 1]] = n_molecs
             img[self.ellipse_perimeter[:, 0], self.ellipse_perimeter[:, 1]] = 1
             img = binary_fill_holes(img)
-
+        
+        elif mode == 'custom':
+            center = (int(self.img_shape[0] / 2), int(self.img_shape[1] / 2))
+            radius = min(self.img_shape[0], self.img_shape[1]) // 2  # Adjust the radius as needed
+            img = np.zeros(self.img_shape)
+            rr, cc = disk(center, radius, shape=self.img_shape)
+            img[rr, cc] = 1
+            self.ellipse_perimeter = np.column_stack((rr, cc))
         self.frame = np.where(img, n_molecs, 0)
 
     def filter_valid_nanodomain_pos(self, thickness=0):

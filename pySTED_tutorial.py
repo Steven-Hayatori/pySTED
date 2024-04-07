@@ -97,38 +97,39 @@ psf_sted = microscope.get_effective(pixelsize, action_spaces["p_ex"]["high"], ac
 # First, we use the Synapse class in exp_data_gen to simulate a synapse-like structure and add nanostructures to it
 # You could use any integer-valued array as a Datamap
 
-shroom1 = dg.Synapse(5, mode="mushroom", seed=42)
+# 背景突触
+shroom1 = dg.Synapse(10, mode="custom", seed=42)
 
-n_molecs_in_domain1, min_dist1 = 135, 50
-shroom1.add_nanodomains(10, min_dist_nm=min_dist1, n_molecs_in_domain=n_molecs_in_domain1, valid_thickness=7, seed=42)
+n_molecs_in_domain1, min_dist1 = 100, 50
+shroom1.add_nanodomains(100, min_dist_nm=min_dist1, n_molecs_in_domain=n_molecs_in_domain1, valid_thickness=5, seed=42)
 
 # create the Datamap and set its region of interest
 dmap = base.Datamap(shroom1.frame, pixelsize)
 dmap.set_roi(i_ex, "max")
 
-shroom2 = dg.Synapse(5, mode="mushroom", seed=42)
-n_molecs_in_domain2, min_dist2 = 0, 50
-shroom2.add_nanodomains(10, min_dist_nm=min_dist2, n_molecs_in_domain=n_molecs_in_domain2, valid_thickness=7, seed=42)
+# shroom2 = dg.Synapse(5, mode="mushroom", seed=42)
+# n_molecs_in_domain2, min_dist2 = 0, 50
+# shroom2.add_nanodomains(10, min_dist_nm=min_dist2, n_molecs_in_domain=n_molecs_in_domain2, valid_thickness=7, seed=42)
 
 # create a temporal Datamap which will also contain information on the positions of nanodomains
 # We create a temporal element by making the nanostructures flash
 # We then set its temporal index to be at the flash peak
-time_idx = 2
-temp_dmap = base.TemporalSynapseDmap(shroom2.frame, pixelsize, shroom2)
-temp_dmap.set_roi(i_ex, "max")
-temp_dmap.create_t_stack_dmap(2000000)
-temp_dmap.update_whole_datamap(time_idx)
-temp_dmap.update_dicts({"flashes": time_idx})
+# time_idx = 2
+# temp_dmap = base.TemporalSynapseDmap(shroom2.frame, pixelsize, shroom2)
+# temp_dmap.set_roi(i_ex, "max")
+# temp_dmap.create_t_stack_dmap(2000000)
+# temp_dmap.update_whole_datamap(time_idx)
+# temp_dmap.update_dicts({"flashes": time_idx})
 
 # you can uncomment this code to see both datamaps, which should look similar
 # fig, axes = plt.subplots(1, 2)
-#
+
 # axes[0].imshow(dmap.whole_datamap[dmap.roi])
 # axes[0].set_title(f"Base Datamap")
-#
+
 # axes[1].imshow(temp_dmap.whole_datamap[temp_dmap.roi])
 # axes[1].set_title(f"Datamap with temporal element")
-#
+
 # plt.show()
 
 # uncomment this code to run through the flash
@@ -149,34 +150,43 @@ temp_dmap.update_dicts({"flashes": time_idx})
 
 conf_acq, conf_bleached, _ = microscope.get_signal_and_bleach(dmap, dmap.pixelsize, **conf_params,
                                                               bleach=True, update=False, seed=42)
-conf_acq2, conf_bleached2, _ = microscope.get_signal_and_bleach(dmap, dmap.pixelsize, **conf_params,
-                                                              bleach=True, update=False, seed=42)
-sted_acq, sted_bleached, _ = microscope.get_signal_and_bleach(temp_dmap, temp_dmap.pixelsize, **sted_params,
+#conf_acq2, conf_bleached2, _ = microscope.get_signal_and_bleach(temp_dmap, temp_dmap.pixelsize, **conf_params,
+#                                                              bleach=True, update=False, seed=42)
+sted_acq, sted_bleached, _ = microscope.get_signal_and_bleach(dmap, dmap.pixelsize,  **sted_params,
                                                               bleach=True, update=True, seed=42)
-sted_acq2, sted_bleached2, _ = microscope.get_signal_and_bleach(temp_dmap, temp_dmap.pixelsize, **sted_params,
-                                                              bleach=True, update=True, seed=42)
+#sted_acq2, sted_bleached2, _ = microscope.get_signal_and_bleach(temp_dmap, temp_dmap.pixelsize, **sted_params,
+#                                                              bleach=True, update=True, seed=42)
 
-
-fig, axes = plt.subplots(2, 2)
-
+fig, axes = plt.subplots(1,3)
 vmax = conf_acq.max()
-axes[0,0].imshow(conf_acq, vmax=vmax)
-axes[0,0].set_title(f"Confocal 1")
-
-axes[0,1].imshow(conf_acq2, vmax=vmax)
-axes[0,1].set_title(f"Confocal 2")
-
+axes[0].imshow(dmap.whole_datamap[dmap.roi])
+axes[0].set_title(f"Datamap")
+axes[1].imshow(conf_acq, vmax=vmax)
+axes[1].set_title(f"Confocal")
 vmax = sted_acq.max()
-axes[1,0].imshow(sted_acq, vmax=vmax)
-axes[1,0].set_title(f"STED 1")
-
-
-axes[1,1].imshow(sted_acq2, vmax=vmax)
-axes[1,1].set_title(f"STED 2")
-
-plt.suptitle("The four images where acquired sequentially. \nSame normalization on each row")
-
+axes[2].imshow(sted_acq, vmax=vmax)
+axes[2].set_title(f"STED")
 plt.show()
+# fig, axes = plt.subplots(2, 2)
+
+# vmax = conf_acq.max()
+# axes[0,0].imshow(conf_acq, vmax=vmax)
+# axes[0,0].set_title(f"Confocal 1")
+
+# axes[0,1].imshow(conf_acq2, vmax=vmax)
+# axes[0,1].set_title(f"Confocal 2")
+
+# vmax = sted_acq.max()
+# axes[1,0].imshow(sted_acq, vmax=vmax)
+# axes[1,0].set_title(f"STED 1")
+
+
+# axes[1,1].imshow(sted_acq2, vmax=vmax)
+# axes[1,1].set_title(f"STED 2")
+
+# plt.suptitle("The four images where acquired sequentially. \nSame normalization on each row")
+
+# plt.show()
 
 # I have set the bleaching to false in these acquisitions for speed. You can set it to True to see its effects
 # on the acquired signal and the datamaps. You can also of course modify other parameters to see their effects
