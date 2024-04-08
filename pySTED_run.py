@@ -2,7 +2,7 @@ from pySTED_generation import generation
 import random
 import simple_functions
 
-NUM = 3
+NUM = 2
 
 simple_functions.clearlog()
 

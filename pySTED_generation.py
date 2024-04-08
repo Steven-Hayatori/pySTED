@@ -5,6 +5,7 @@ import time
 from pysted import base, utils, microscopes
 from pysted import exp_data_gen as dg
 from datetime import datetime
+from PIL import Image
 import simple_functions
 
 """
@@ -74,6 +75,14 @@ psf_conf = microscope.get_effective(pixelsize, action_spaces["p_ex"]["high"], 0.
 psf_sted = microscope.get_effective(pixelsize, action_spaces["p_ex"]["high"], action_spaces["p_sted"]["high"] * 0.25)
 
 # 背景突触
+def normalization(img):
+    min_val = np.min(img)
+    max_val = np.max(img)
+    stretched_array = ((img - min_val) / (max_val - min_val)) * 255
+    stretched_array = stretched_array.astype(np.uint8)
+    return stretched_array
+
+
 def generation(STRENGTH_BG, STRENGTH_MO, NUM_MO, SEED_BG, SEED_MO, i):
     simple_functions.log(f'背景强度{STRENGTH_BG}, 荧光强度{STRENGTH_MO}, 荧光数{NUM_MO}, 种子A{SEED_BG}, 种子B{SEED_MO},这是第{i+1}张生成')
     shroom1 = dg.Synapse(STRENGTH_BG, mode="custom", seed=SEED_BG)
@@ -97,11 +106,7 @@ def generation(STRENGTH_BG, STRENGTH_MO, NUM_MO, SEED_BG, SEED_MO, i):
     # vmax = sted_acq.max()
     # axes[2].imshow(sted_acq, vmax=vmax)
     # axes[2].set_title(f"STED")
-    vmax = conf_acq.max()
-    plt.imshow(conf_acq, vmax=vmax)
-    plt.axis('off')  # 关闭坐标轴
-    plt.savefig(f'./output/Confocal/{i}.png')
-    vmax = sted_acq.max()
-    plt.imshow(sted_acq, vmax=vmax)
-    plt.savefig(f'./output/STED/{i}.png')
+
+    Image.fromarray(normalization(conf_acq)).save(f'./output/Confocal/{i}.png')
+    Image.fromarray(normalization(sted_acq)).save(f'./output/STED/{i}.png')
     simple_functions.log(f'第{i+1}次生成完成')
