@@ -17,7 +17,6 @@ code for the objects that make up the microscope and the sample are contained in
 Each object has parameters which can be tuned, which will affect the resulting acquisition
 """
 
-print("Setting up the microscope...")
 # Fluorophore properties
 egfp = {
     "lambda_": 535e-9,
@@ -83,8 +82,8 @@ def normalization(img):
     return stretched_array
 
 
-def generation(STRENGTH_BG, STRENGTH_MO, NUM_MO, SEED_BG, SEED_MO, i):
-    simple_functions.log(f'背景强度{STRENGTH_BG}, 荧光强度{STRENGTH_MO}, 荧光数{NUM_MO}, 种子A{SEED_BG}, 种子B{SEED_MO},这是第{i+1}张生成')
+def generation(STRENGTH_BG, STRENGTH_MO, NUM_MO, SEED_BG, SEED_MO, number):
+    simple_functions.log(f'背景强度{STRENGTH_BG}, 荧光强度{STRENGTH_MO}, 荧光数{NUM_MO}, 种子A{SEED_BG}, 种子B{SEED_MO},这是第{number}张生成')
     shroom1 = dg.Synapse(STRENGTH_BG, mode="custom", seed=SEED_BG)
 
     n_molecs_in_domain1, min_dist1 = STRENGTH_MO, 50
@@ -107,6 +106,6 @@ def generation(STRENGTH_BG, STRENGTH_MO, NUM_MO, SEED_BG, SEED_MO, i):
     # axes[2].imshow(sted_acq, vmax=vmax)
     # axes[2].set_title(f"STED")
 
-    Image.fromarray(normalization(conf_acq)).save(f'./output/Confocal/{i}.png')
-    Image.fromarray(normalization(sted_acq)).save(f'./output/STED/{i}.png')
-    simple_functions.log(f'第{i+1}次生成完成')
+    Image.fromarray(normalization(conf_acq)).save(f'./output/Confocal/{number-1}.png')
+    Image.fromarray(normalization(sted_acq)).save(f'./output/STED/{number-1}.png')
+    simple_functions.log(f'第{number}次生成完成')
