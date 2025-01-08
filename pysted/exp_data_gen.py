@@ -252,6 +252,57 @@ class Synapse():
             counter += 1
         self.n_molecs_in_domains = n_molecs_in_domain
 
+    def add_nanodomains_continuous(self, n_nanodmains, max_dist_nm, n_molecs_in_domain=5, seed=None, valid_thickness=0):
+        """
+        Adds nanodomains on the periphery of the synapse, ensuring they are within a maximum distance.
+        :param n_nanodmains: The number of nanodomains that will be attempted to be added.
+        :param max_dist_nm: The maximum distance (in nm) allowed between nanodomains.
+        :param n_molecs_in_domain: The number of molecules to be added at the nanodomain positions.
+        :param seed: Sets the seed for the random placement of nanodomains.
+        :param valid_thickness: The thickness of the valid region for the nanodomains.
+        """
+        if type(n_nanodmains) is tuple:
+            n_nanodmains = np.random.randint(n_nanodmains[0], n_nanodmains[1])
+        if type(max_dist_nm) is tuple:
+            max_dist_nm = np.random.randint(max_dist_nm[0], max_dist_nm[1])
+        if type(valid_thickness) is tuple:
+            valid_thickness = np.random.randint(valid_thickness[0], valid_thickness[1])
+        if type(n_molecs_in_domain) is tuple:
+            n_molecs_in_domain_list = [np.random.randint(n_molecs_in_domain[0], n_molecs_in_domain[1])
+                                    for i in range(n_nanodmains)]
+
+        np.random.seed(seed)
+        self.nanodomains = []
+        self.nanodomains_coords = []
+        n_nanodmains_placed = 0
+        self.filter_valid_nanodomain_pos(thickness=valid_thickness)
+
+        for i in range(n_nanodmains):
+        #    if self.valid_nanodomains_pos.shape[0] == 0:
+        #        # no more valid positions, simply stop
+        #        warnings.warn(f"Attempted to place {n_nanodmains} nanodomains, but only {n_nanodmains_placed} could"
+        #                    f" be placed due to the maximum distance of {max_dist_nm} separating them")
+        #        break
+            self.nanodomains.append(Nanodomain(self.img_shape, self.valid_nanodomains_pos))
+            self.nanodomains_coords.append(self.nanodomains[i].coords)
+            n_nanodmains_placed += 1
+
+            # Calculate distances and filter by maximum distance
+            distances = cdist(np.array(self.nanodomains_coords), self.valid_nanodomains_pos)
+            distances *= self.datamap_pixelsize_nm
+            valid_positions_idx = np.argwhere(distances <= max_dist_nm)[:, 1]
+            self.valid_nanodomains_pos = self.valid_nanodomains_pos[valid_positions_idx]
+
+        counter = 0
+        for row, col in self.nanodomains_coords:
+            if type(n_molecs_in_domain) is tuple:
+                self.frame[row, col] += n_molecs_in_domain_list[counter]
+            else:
+                self.frame[row, col] += n_molecs_in_domain
+            counter += 1
+        self.n_molecs_in_domains = n_molecs_in_domain
+
+
     def fatten_nanodomains(self):
         """
         Fattens the nanodomains by 1 pixel on each side (if the side is within the synapse)

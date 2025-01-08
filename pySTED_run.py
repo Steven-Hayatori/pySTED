@@ -2,8 +2,8 @@ from pySTED_generation import generation
 import random
 import simple_functions
 
-NUM = 4000 # 打算生成的张数
-START_i = 205 #已经有的张数（不用算了直接写“总数”或者“最后一张index+1”），会有一张重复
+NUM = 5 # 打算生成的张数
+START_i = 0 #已经有的张数（不用算了直接写“总数”或者“最后一张index+1”），会有一张重复
 
 simple_functions.clearlog()
 

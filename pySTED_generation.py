@@ -86,8 +86,8 @@ def generation(STRENGTH_BG, STRENGTH_MO, NUM_MO, SEED_BG, SEED_MO, number):
     simple_functions.log(f'背景强度{STRENGTH_BG}, 荧光强度{STRENGTH_MO}, 荧光数{NUM_MO}, 种子A{SEED_BG}, 种子B{SEED_MO},这是第{number}张生成')
     shroom1 = dg.Synapse(STRENGTH_BG, mode="custom", seed=SEED_BG)
 
-    n_molecs_in_domain1, min_dist1 = STRENGTH_MO, 50
-    shroom1.add_nanodomains(NUM_MO, min_dist_nm=min_dist1, n_molecs_in_domain=n_molecs_in_domain1, valid_thickness=2, seed=SEED_MO)
+    n_molecs_in_domain1, min_dist1 = STRENGTH_MO, 10
+    shroom1.add_nanodomains_continuous(NUM_MO, max_dist_nm=min_dist1, n_molecs_in_domain=n_molecs_in_domain1, valid_thickness=2, seed=SEED_MO)
 
     # create the Datamap and set its region of interest
     dmap = base.Datamap(shroom1.frame, pixelsize)
